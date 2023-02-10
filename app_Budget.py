@@ -52,7 +52,6 @@ class ChoisirChargementTxOuAfficherTx(QMainWindow):
 def chercher_ligneBudget_DansTableTransactions(nom_tx, date_tx, est_depense, liste_dates_periodes):
     global g_nbQueryOuverte, g_SQLQuery
 
-    ligneBudget = ""
     noPeriode = -1
     txExisteDeja = False
 
@@ -65,9 +64,6 @@ def chercher_ligneBudget_DansTableTransactions(nom_tx, date_tx, est_depense, lis
     index = nom_tx.find('#')
     if index >= 0:
         nomRecherche = nom_tx[:index-1]
-    # index = nom_tx.find('/')
-    # if index >= 0:
-    #     nomRecherche = nom_tx[:index-1]
 
     requete = f"SELECT " \
               f"    ligneBudget, " \
@@ -82,8 +78,6 @@ def chercher_ligneBudget_DansTableTransactions(nom_tx, date_tx, est_depense, lis
               f"    ligneBudget <> 20 " \
               f"ORDER " \
               f"    BY dateTx DESC"
-
-    enrTrouve = False
 
     if est_depense:
         ligneBudget = 20   # Dépenses personnelles
@@ -145,7 +139,7 @@ def ajouterTx_DansTableTransactions(ligne_budget, no_periode, nom_tx, date_tx, d
         print("Insertion impossible dans la table 'transactions'")
 
 
-def calculerMontant(ligne_budget):
+def calculerMontant(ligne_budget, maj_ligne_budget=False):
     global g_CheckBox_ListeSaisieManuelle, g_NoPeriodeBudget, g_LineEdit, g_nbQueryOuverte, g_SQLQuery
 
     montantTxFormat = ""
@@ -182,6 +176,8 @@ def calculerMontant(ligne_budget):
             montantInt = "{montantSansFormat:.2f}"
             montantTxFormat = montantInt.format(montantSansFormat=(montantTx / 100))
 
+    if maj_ligne_budget:
+        g_LineEdit[ligne_budget].setText(montantTxFormat)
     return montantTxFormat
 
 
@@ -718,15 +714,7 @@ class Budget_Widget(QWidget):
 
         self.tabs.resize(self.width(), self.height())
         self.creationLayoutBudget()
-        # LireDatesPeriode()
         self.afficherBudget()
-
-    """ 
-    Fonction afficherBudget: 
-    
-    Cette fonction permet d'aller lire et afficher budget qui est sauvegardé dans la base de données, 
-    pour chacun des utilisateurs, et pour chaque périodes de l'année.
-    """
 
     def afficherBudget(self):
         global g_CheckBox_ListeSaisieManuelle, g_LineEdit, g_LabelLigneBudget
@@ -867,9 +855,6 @@ class Budget_Widget(QWidget):
             self.layoutBudget.addLayout(self.gridBudget)
             self.layoutBudget.addLayout(gridDany)
             self.tabBudget.setLayout(self.layoutBudget)
-
-            # self.layoutSommaire.addLayout(self.gridSommaire)
-            # self.tabSommaire.setLayout(self.layoutSommaire)
 
             self.tabs.TabPosition(1)
             self.layoutPrincipal.addWidget(self.tabs)
@@ -1154,18 +1139,6 @@ class Budget_Widget(QWidget):
                 g_LabelLigneBudget[ligneTotal].setVisible(self.afficherLignesCacheesBudget)
                 g_LineEdit[ligneTotal].setVisible(self.afficherLignesCacheesBudget)
 
-    def sauvegarderBudget(self):
-        self.labelMessage.setText("")
-        sauvegarde = QMessageBox.question(self.fenetre_principale,
-                                          "SAUVEGARDER",
-                                          "Sauvegarder les données?",
-                                          QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
-
-        if sauvegarde == QMessageBox.StandardButton.Yes:
-            ecrireDonneesApplicatives(self.fenetre_principale)
-            self.sauverMontant()
-            self.afficherBudget
-
     def quitterAppBudget(self):
         self.labelMessage.setText("")
         quitter = quitterBudget(self)
@@ -1243,7 +1216,8 @@ class AfficherTransactionsCellule(QMainWindow):
         self.writeSettingsFenTx()
 
         for montant in g_LineEdit:
-            calculerMontant(montant)
+            calculerMontant(montant, True)
+
 
 
 class Donut_BreakdownChart(QChart):
