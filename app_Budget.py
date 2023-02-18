@@ -8,9 +8,8 @@ from PySide6.QtGui import QPen, QPainter, QFont, QColor, QDoubleValidator
 from PySide6.QtCharts import QChart, QChartView, QPieSeries, QPieSlice, QBarSeries, QLineSeries, QBarSet, \
     QBarCategoryAxis, QBarSeries, QBarSet, QChart, QChartView, QLineSeries, QValueAxis
 from PySide6.QtSql import QSqlDatabase, QSqlQuery, QSqlTableModel
-from PySide6.QtWidgets import QMainWindow, QApplication, QPushButton, QWidget, QTabWidget, QVBoxLayout, \
-    QLabel, QComboBox, QHBoxLayout, QFormLayout, QGridLayout, QLineEdit, QMessageBox, QFileDialog, QTableView, \
-    QItemDelegate, QAbstractItemView, QCheckBox
+from PySide6.QtWidgets import QApplication, QTabWidget, QComboBox, QHBoxLayout, QFormLayout, QGridLayout, QLineEdit, \
+    QMessageBox, QFileDialog, QTableView, QItemDelegate, QAbstractItemView, QCheckBox
 from PySide6 import QtGui, QtCore
 
 # import PySide6
@@ -74,8 +73,7 @@ def chercher_ligneBudget_DansTableTransactions(nom_tx, date_tx, est_depense, lis
               f"WHERE " \
               f"    anneeBudget = {g_AnneeBudget} AND " \
               f"    nomTx like '{nomRecherche}%' AND " \
-              f"    codeUtilisateur = '{g_UtilisateurBudget}' AND " \
-              f"    ligneBudget <> 20 " \
+              f"    codeUtilisateur = '{g_UtilisateurBudget}' " \
               f"ORDER " \
               f"    BY dateTx DESC"
 
@@ -712,7 +710,7 @@ class Budget_Widget(QWidget):
         self.comboPeriodes.setCurrentIndex(self.listePeriodes[self.Ind_NoPeriode].index(int(g_NoPeriodeBudget)))
         self.comboPeriodes.activated.connect(self.onActivated_Periode)
 
-        self.tabs.resize(self.width(), self.height())
+        # self.tabs.resize(self.width(), self.height())
         self.creationLayoutBudget()
         self.afficherBudget()
 
@@ -1186,13 +1184,13 @@ class AfficherTransactionsCellule(QMainWindow):
         self.view.setShowGrid(True)
         self.view.setModel(self.model)
 
-        # Pour trier la vue par ordre descendant de date de transaction
-        proxyModel = QSortFilterProxyModel()
-        proxyModel.setSourceModel(self.model)
-        self.view.setModel(proxyModel)
-        # self.view.setSortingEnabled(True)
-        # self.view.sortByColumn(7, Qt.DescendingOrder)
-        self.view.reset()
+        # # Pour trier la vue par ordre descendant de date de transaction
+        # proxyModel = QSortFilterProxyModel()
+        # proxyModel.setSourceModel(self.model)
+        # self.view.setModel(proxyModel)
+        # # self.view.setSortingEnabled(True)
+        # # self.view.sortByColumn(7, Qt.DescendingOrder)
+        # self.view.reset()
 
         self.view.hideColumn(1)
         self.view.hideColumn(2)
@@ -1217,7 +1215,6 @@ class AfficherTransactionsCellule(QMainWindow):
 
         for montant in g_LineEdit:
             calculerMontant(montant, True)
-
 
 
 class Donut_BreakdownChart(QChart):
