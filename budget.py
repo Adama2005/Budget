@@ -11,7 +11,6 @@ from librairieSQL import Sql
 
 g_connexionSql = Sql()
 
-
 class stackedExample(QWidget):
     def __init__(self):
         super(stackedExample, self).__init__()
@@ -122,8 +121,6 @@ class stackedExample(QWidget):
 C'est la classe de base du budget. Toutes les transactions possibles sont dans cette classe.
 Les informations de chaque transaction sont dans cette classe.
 """
-
-
 class Budget:
     def __init__(self):
         super().__init__()
@@ -131,7 +128,7 @@ class Budget:
         self.budget_Periode = []
 
         self.anneeBudget = 2023
-        self.noPeriodeBudget = 3
+        self.noPeriodeBudget = 2
         self.codeUtilisateur = "Dany"
         self.versionBudget = 0
 
@@ -176,6 +173,7 @@ class Budget:
                 self.budget_Periode.append(nouvelleLigne)
 
                 ligneSQL = g_connexionSql.lireEnr()
+
 
     def lireDefinitionBudget(self):
         montantTotalPrevu = 0
@@ -225,23 +223,20 @@ class Budget:
         #         montantTotalPrevu -= ligneSQL.value("montantPrevu")
 
         # 2021228 - 20230112
-        periodeValide = False
-
         for infoPeriode in self.budget_Periode:
             if infoPeriode["noPeriode"] == self.noPeriodeBudget:
                 if str(infoPeriode["dateDebutPeriode"])[4:6] == str(infoPeriode["dateFinPeriode"])[4:6]:
                     #  Vérification du mois
                     if infoPeriode["jourDebutPeriode"] <= jour_tx <= infoPeriode["jourFinPeriode"]:
-                        periodeValide = True
+                        return True
                 else:
                     if jour_tx <= infoPeriode["jourDebutPeriode"] and jour_tx <= infoPeriode["jourFinPeriode"]:
-                        periodeValide = True
+                        return True
 
-        return periodeValide
+        return False
 
     def faireEcranBudget(self):
         print("Faire écran budget)")
-
 
 def main():
     b = Budget()
@@ -251,7 +246,8 @@ def main():
     if g_connexionSql.ouvrirBD(nomBD):
         b.lirePeriodeBudget()
         b.lireDefinitionBudget()
-        b.jourDansPeriode('5')
+        valide = b.jourDansPeriode(11)
+        print(valide)
 
         # b.faireEcranBudget()
 
